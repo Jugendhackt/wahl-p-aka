@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 
-from wahl_p_aka.api import api_blueprint
+from api import api_blueprint
 
 app = Flask(__name__)
 
