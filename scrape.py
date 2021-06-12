@@ -1,8 +1,8 @@
 import functools
-import time
 import os
+import time
 from datetime import date
-from typing import List, Tuple
+from typing import List
 
 import requests
 
@@ -54,6 +54,10 @@ def get_or_create_poll(poll) -> db.Poll:
     _poll.abstract = poll['field_intro']
     _poll.date = date.fromisoformat(poll['field_poll_date'])
 
+    if poll['field_topics'] is not None:
+        for topic in poll['field_topics']:
+            _poll.topic = get_or_create_topic_from_api(topic['id'])
+
     for v in get_votes(_poll):
         _poll.politician_votes.append(v)
 
@@ -92,8 +96,8 @@ def get_votes(poll: db.Poll) -> List[db.PartyVote]:
 
 @functools.lru_cache(maxsize=None)
 def get_or_create_politician_by_mandate_id(mandate_id) -> db.Politician:
-    db_obj = db.db.session.query(db.Politician)\
-                        .filter(db.Politician.aw_id == mandate_id).first()
+    db_obj = db.db.session.query(db.Politician) \
+        .filter(db.Politician.aw_id == mandate_id).first()
     if db_obj is not None:
         return db_obj
 
@@ -138,6 +142,35 @@ def get_or_create_party(party_id: int) -> db.Party:
     party.aw_id = party_data['id']
     db.db.session.add(party)
     return party
+
+
+@functools.lru_cache(maxsize=None)
+def get_or_create_topic_from_api(topic_id: int) -> db.PollTopic():
+    db_obj = db.db.session.query(db.PollTopic) \
+        .filter(db.PollTopic.aw_id == topic_id).first()
+    if db_obj is not None:
+        return db_obj
+
+    api_topic = requests.get(
+        get_api_url(f'topics/{topic_id}')
+    )
+
+    topic_data = api_topic.json()['data']
+
+    topic = db.PollTopic()
+    topic.aw_id = topic_id
+    topic.topic = topic_data['label']
+
+    if topic_data['parent'] is not None:
+        topic.parent.append(
+            get_or_create_topic_from_api(
+                int(topic_data['parent'][0]['id'])
+            )
+        )
+
+    db.db.session.add(topic)
+
+    return topic
 
 
 if __name__ == '__main__':
