@@ -1,38 +1,41 @@
 <html>
-<head>
-    <link rel="stylesheet" href="{{ url_for('static' , filename='mystyle.css')}}">
-</head>
-<body>
-    <div id="question-frame">
-	    <button id="info-button" style="float: right;">Info</button>
-	    <h1 align="center" id="question"> Frage x</h3>
-	</div>
-	<br/>
-	<br/>
-	<div id="main-question">
-	    <h2 align="center">Blabla.....?</h2>
-		<br/>
-		<div id="options-group" data-toggle="buttons" align="center">
-		      <label class="btn btn-primary active">
-              <input type="radio" name="options" id="option1" checked> Dem stimme ich zu.
-              </label>
-              <label class="btn btn-primary">
-              <input type="radio" name="options" id="option2"> Dem stimme ich nicht zu.
-              </label>
-              <label class="btn btn-primary">
-              <input type="radio" name="options" id="option3"> Ich weiß nicht.
-              </label>
-			  <br/>
-			  <br/>
-			  <br/>
-			  <input type="submit" value="Eingabe!" id="submit-question">
-			  
+	<head>
+		<meta charset="UTF-8">
+		<title>Wahlpaka - Fragen</title>
+		<link rel="stylesheet" href="https://static.labcode.de/fonts/roboto/roboto.css">
+		<link rel="stylesheet" href="{{ url_for('static', filename='styles.css')}}">
+	</head>
+	<body>
+		<div id="question-frame">
+			<button id="info-button" style="float: right;">Info</button>
+			<h1 align="center" id="question-title"> Frage x</h1>
 		</div>
 		<br/>
 		<br/>
-	</div>
-	
-	
-</body>
-
+		<form action="{{ url_for('result') }}" method="post">
+			{% for question in questions %}
+			<div class="question">
+				<h2 align="center">{{ question.title }}</h2>
+				<br/>
+				<div id="options-group" data-toggle="buttons" align="center">
+					<label class="btn btn-primary active">
+						<input type="radio" name="radio_{{ question.id }}"> Dem stimme ich zu.
+					</label>
+					<label class="btn btn-primary">
+						<input type="radio" name="radio_{{ question.id }}"> Dem stimme ich nicht zu.
+					</label>
+					<label class="btn btn-primary">
+						<input type="radio" name="radio_{{ question.id }}"> Ich weiß nicht.
+					</label>
+					<br>
+				</div>
+				<br/>
+				<br/>
+			</div>
+			{% endfor %}
+			<div style="text-align: center; margin-top: 15px;">
+				<input type="submit" value="Eingabe!" id="submit-button">
+			</div>
+		</form>
+	</body>
 </html>

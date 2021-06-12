@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Wahlpaka</title>
+        <link rel="stylesheet" href="https://static.labcode.de/fonts/roboto/roboto.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css')}}">
+    </head>
+
+    <body>
+        <div id="title-frame">
+            <h1 align="center">WAHL-P-AKA</h1>
+            <br/>
+            <h2 align="center">--Wer vertritt deine Interessen?--</h2>
+        </div>
+        <h2 align="center">Kreuze die Themen an, die dich interessieren: </h2>
+        <form id="question-start" action="{{ url_for('question_site') }}" method="post">
+            {% for topic in topics %}
+            <div class="row{% if topic.parent %} child{% endif %}">
+                <input name="checkbox_{{ topic.id }}" type="checkbox" id="checkbox_{{ topic.id }}">
+                <label for="checkbox_{{ topic.id }}" class="cool-label">{{ topic.name }}</label>
+            </div>
+            {% endfor %}
+            <div class="row" style="text-align: center;">
+                <input type="submit" value="Los gehts!" id="submit-button">
+            </div>
+        </form>
+    </body>
+</html>
