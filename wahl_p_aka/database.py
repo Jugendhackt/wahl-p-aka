@@ -45,6 +45,7 @@ poll_poll_topic_association_table = Table(
 
 class PollTopic(db.Model):
     id = Column(Integer, primary_key=True)
+    aw_id = Column(String(255))
     name = Column(String(255))
     parent_id = Column(Integer, ForeignKey('poll_topic.id'))
     parent = relationship("PollTopic", back_populates="children", remote_side=[id])
