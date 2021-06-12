@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Integer, String, Column, DateTime, Text, ForeignKey
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Integer, String, Column, DateTime, Text, ForeignKey, Table
+from sqlalchemy.orm import relationship
 
 from wahl_p_aka import app
 
@@ -35,18 +35,25 @@ class Constituency(db.Model):
     politicians = relationship('Politician', back_populates="constituency")
 
 
+poll_poll_topic_association_table = Table(
+    'poll_poll_topic_association_table',
+    db.Model.metadata,
+    Column('poll_id', Integer, ForeignKey('poll.id')),
+    Column('poll_topic_id', Integer, ForeignKey('poll_topic.id'))
+)
+
+
 class PollTopic(db.Model):
     id = Column(Integer, primary_key=True)
-    topic = Column(String)
+    name = Column(String(255))
     parent_id = Column(Integer, ForeignKey('poll_topic.id'))
-    parent = relationship("PollTopic", back_populates="children")
-    children = relationship("PollTopic")
+    parent = relationship("PollTopic", back_populates="children", remote_side=[id])
+    children = relationship("PollTopic", back_populates="parent")
 
 
 class Poll(db.Model):
     id = Column(Integer, primary_key=True)
-    topic_id = Column(Integer, ForeignKey('poll_topic.id'))
-    topic = relationship("PollTopic")
+    topics = relationship("PollTopic", secondary=poll_poll_topic_association_table)
     date = Column(DateTime)
     title = Column(String(255))
     abstract = Column(Text)
