@@ -1,0 +1,38 @@
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static' , filename='mystyle.css')}}">
+</head>
+<body>
+    <div id="question-frame">
+	    <button id="info-button" style="float: right;">Info</button>
+	    <h1 align="center" id="question"> Frage x</h3>
+	</div>
+	<br/>
+	<br/>
+	<div id="main-question">
+	    <h2 align="center">Blabla.....?</h2>
+		<br/>
+		<div id="options-group" data-toggle="buttons" align="center">
+		      <label class="btn btn-primary active">
+              <input type="radio" name="options" id="option1" checked> Dem stimme ich zu.
+              </label>
+              <label class="btn btn-primary">
+              <input type="radio" name="options" id="option2"> Dem stimme ich nicht zu.
+              </label>
+              <label class="btn btn-primary">
+              <input type="radio" name="options" id="option3"> Ich weiß nicht.
+              </label>
+			  <br/>
+			  <br/>
+			  <br/>
+			  <input type="submit" value="Eingabe!" id="submit-question">
+			  
+		</div>
+		<br/>
+		<br/>
+	</div>
+	
+	
+</body>
+
+</html>

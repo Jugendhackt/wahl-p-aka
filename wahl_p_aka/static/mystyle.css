@@ -1,0 +1,77 @@
+h1 {
+	font-family: Calibri;
+}
+
+h2 {
+	font-family: Calibri;
+}
+
+h3 {
+	font-family: Calibri;
+}
+
+#title-frame {
+	background-color: #219fd1;
+	padding:6px;
+	border: 3px solid black;
+}
+
+#question-start {
+	margin: auto;
+	width:25%;
+	background-color: #219fd1;
+	border: 3px solid black;
+}
+
+#q-text {
+	color: #219fd1;
+}
+
+#cool-label {
+	color: #e1f2f5;
+}
+
+#rows {
+	padding:10px;
+	
+}
+
+#submit-button {
+	padding: 5px;
+}
+
+#question-frame {
+	
+	background-color: #219fd1;
+	padding: 6px;
+	border: 3px solid black;
+	
+	
+}
+
+#info-button {
+	border: 3px solid black;
+	text-align: center;
+	border-radius: 50%;
+	margin: 5px 5px;
+	width: 5%;
+	height: 5%;
+}
+
+#question {
+	
+	top: auto;
+}
+
+#main-question {
+	background-color: #219fd1;
+	padding: 6px;
+	border: 3px solid black;
+}
+
+#submit-question {
+	padding: 5px;
+	width: 10%;
+	height: 5%;
+	border: 3px solid black
+}
