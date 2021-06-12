@@ -2,6 +2,7 @@ import functools
 import os
 import time
 from datetime import date
+from hashlib import scrypt
 from typing import List
 
 import requests
@@ -174,19 +175,35 @@ def get_or_create_topic_from_api(topic_id: int) -> db.PollTopic():
 
 
 if __name__ == '__main__':
-    r = requests.get(
-        get_api_url('polls'),
-        {
-            'field_legislature[entity.id]': period,
-            'pager_limit': int(os.getenv('SCRAPE_POLLS', 2)),
-            'page': 0,
-        }
-    )
-
-    data = r.json()['data']
-
+    scraper_polls_count = int(os.getenv('SCRAPE_POLLS_COUNT', 100))
+    if scraper_polls_count > 100:
+        scraper_polls_count = 100  # 100 is the limit of the aw api
+    scraper_paginate = os.getenv('SCRAPE_PAGINATE', scraper_polls_count >= 100)
+    scraper_paginate = scraper_paginate.lower() in ('true', '1', 't')
+    next_page = True
+    page = 0
+    _polls = []
     polls = []
-    for _p in data:
+
+    while next_page:
+        r = requests.get(
+            get_api_url('polls'),
+            {
+                'field_legislature[entity.id]': period,
+                'pager_limit': scraper_polls_count,
+                'page': page,
+            }
+        )
+
+        api_polls = r.json()['data']
+        polls += api_polls
+        next_page = (
+            (len(api_polls) >= scraper_polls_count) and
+            scraper_paginate
+         )
+        page += 1
+
+    for _p in _polls:
         polls.append(get_or_create_poll(_p))
 
     db.db.session.commit()
