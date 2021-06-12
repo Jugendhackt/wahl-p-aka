@@ -39,13 +39,14 @@ class PollTopic(db.Model):
     id = Column(Integer, primary_key=True)
     topic = Column(String)
     parent_id = Column(Integer, ForeignKey('poll_topic.id'))
-    children = relationship("PollTopic", backref=backref('parent', remote_side=[id]))
+    parent = relationship("PollTopic", back_populates="children")
+    children = relationship("PollTopic")
 
 
 class Poll(db.Model):
     id = Column(Integer, primary_key=True)
     topic_id = Column(Integer, ForeignKey('poll_topic.id'))
-    topic = relationship("PollTopic", remote_side=[id])
+    topic = relationship("PollTopic")
     date = Column(DateTime)
     title = Column(String(255))
     abstract = Column(Text)
