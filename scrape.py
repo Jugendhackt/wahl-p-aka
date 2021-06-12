@@ -40,8 +40,14 @@ def get_api_url(endpoint) -> str:
     return f'{api_base_url}/{endpoint}'
 
 
-def get_poll(poll) -> db.Poll:
-    poll_id = poll['id']
+def get_or_create_poll(poll) -> db.Poll:
+    poll_id = int(poll['id'])
+
+    db_obj = db.db.session.query(db.Poll) \
+        .filter(db.Poll.aw_id == poll_id).first()
+    if db_obj is not None:
+        return db_obj
+
     _poll = db.Poll()
     _poll.aw_id = poll_id
     _poll.title = poll['label']
@@ -71,8 +77,8 @@ def get_votes(poll: db.Poll) -> List[db.PartyVote]:
         vote = db.PoliticianVote()
         vote.vote = _v['vote']
         mandate_id = int(_v['mandate']['id'])
-        politician, party = get_politician_by_mandate_id(mandate_id)
-        vote.party = party
+        politician = get_or_create_politician_by_mandate_id(mandate_id)
+        vote.party = politician.party
         vote.politician = politician
         vote.poll = poll
         db.db.session.add(vote)
@@ -85,7 +91,12 @@ def get_votes(poll: db.Poll) -> List[db.PartyVote]:
 
 
 @functools.lru_cache(maxsize=None)
-def get_politician_by_mandate_id(mandate_id) -> Tuple[db.Politician, db.Party]:
+def get_or_create_politician_by_mandate_id(mandate_id) -> db.Politician:
+    db_obj = db.db.session.query(db.Politician)\
+                        .filter(db.Politician.aw_id == mandate_id).first()
+    if db_obj is not None:
+        return db_obj
+
     api_mandate = requests.get(
         get_api_url(f'candidacies-mandates/{mandate_id}'),
         {
@@ -97,7 +108,7 @@ def get_politician_by_mandate_id(mandate_id) -> Tuple[db.Politician, db.Party]:
     _politician_data = mandate['related_data']['politician']
     _party_data = _politician_data['party']
 
-    party = create_party(int(_party_data['id']))
+    party = get_or_create_party(int(_party_data['id']))
 
     politician = db.Politician()
     politician.aw_id = _politician_data['id']
@@ -107,11 +118,16 @@ def get_politician_by_mandate_id(mandate_id) -> Tuple[db.Politician, db.Party]:
 
     db.db.session.add(politician)
 
-    return politician, party
+    return politician
 
 
 @functools.lru_cache(maxsize=None)
-def create_party(party_id: int) -> db.Party:
+def get_or_create_party(party_id: int) -> db.Party:
+    db_obj = db.db.session.query(db.Party) \
+        .filter(db.Party.aw_id == party_id).first()
+    if db_obj is not None:
+        return db_obj
+
     api_party = requests.get(
         get_api_url(f'parties/{party_id}')
     )
@@ -137,7 +153,7 @@ if __name__ == '__main__':
     data = r.json()['data']
 
     polls = []
-    for poll in data:
-        polls.append(get_poll(poll))
+    for _p in data:
+        polls.append(get_or_create_poll(_p))
 
     db.db.session.commit()

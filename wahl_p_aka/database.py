@@ -55,7 +55,7 @@ class PollTopic(db.Model):
 class Poll(db.Model):
     id = Column(Integer, primary_key=True)
     topics = relationship("PollTopic", secondary=poll_poll_topic_association_table)
-    aw_id = Column(Integer)
+    aw_id = Column(Integer, unique=True)
     date = Column(DateTime)
     title = Column(String(255))
     abstract = Column(Text)
