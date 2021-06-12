@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship, backref
 
 from wahl_p_aka import app
 
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
