@@ -129,7 +129,7 @@ if __name__ == '__main__':
         get_api_url('polls'),
         {
             'field_legislature[entity.id]': period,
-            'pager_limit': 10,
+            'pager_limit': int(os.getenv('SCRAPE_POLLS', 2)),
             'page': 0,
         }
     )
