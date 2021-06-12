@@ -2,7 +2,7 @@ import functools
 import time
 import os
 from datetime import date
-from typing import List
+from typing import List, Tuple
 
 import requests
 
@@ -84,8 +84,8 @@ def get_votes(poll: db.Poll) -> List[db.PartyVote]:
     return votes
 
 
-@functools.cache
-def get_politician_by_mandate_id(mandate_id) -> tuple[db.Politician, db.Party]:
+@functools.lru_cache(maxsize=None)
+def get_politician_by_mandate_id(mandate_id) -> Tuple[db.Politician, db.Party]:
     api_mandate = requests.get(
         get_api_url(f'candidacies-mandates/{mandate_id}'),
         {
@@ -110,7 +110,7 @@ def get_politician_by_mandate_id(mandate_id) -> tuple[db.Politician, db.Party]:
     return politician, party
 
 
-@functools.cache
+@functools.lru_cache(maxsize=None)
 def create_party(party_id: int) -> db.Party:
     api_party = requests.get(
         get_api_url(f'parties/{party_id}')
