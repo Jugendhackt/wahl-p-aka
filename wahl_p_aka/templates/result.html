@@ -1,0 +1,23 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Wahlpaka - Auswertung</title>
+        <link rel="stylesheet" href="https://static.labcode.de/fonts/roboto/roboto.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css')}}">
+    </head>
+
+    <body style="margin: auto">
+        <div id="title-frame">
+            <h1 align="center">WAHL-P-AKA</h1>
+            <br/>
+            <h2 align="center">--Wer vertritt deine Interessen?--</h2>
+        </div>
+        <h2 align="center">Dein Ergebnis: </h2>
+        <canvas id="result-chart" style="width: 40vw; height: 60vh; margin: auto"></canvas>
+        <script>
+            const results = {{ result | tojson }}
+        </script>
+        <script src="{{ url_for('static', filename='chart.min.js')}}"></script>
+        <script src="{{ url_for('static', filename='result.js')}}"></script>
+    </body>
+</html>

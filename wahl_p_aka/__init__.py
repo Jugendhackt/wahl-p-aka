@@ -46,3 +46,21 @@ def question_site():
             "date": row.date
         })
     return flask.render_template("question_site.html", questions=questions)
+
+
+@app.route("/result", methods=['post'])
+def result_site():
+    polltopics = PollTopic.query.all()
+    result=[
+        {
+            "short_name": "SPD",
+            "long_name": "Spaßpartei Deutschlands",
+            "percent": 20
+        },
+        {
+            "short_name": "CDU",
+            "long_name": "Christliche Deutsche Unpartei",
+            "percent": 10
+        }
+    ]
+    return flask.render_template("result.html", result=result)
