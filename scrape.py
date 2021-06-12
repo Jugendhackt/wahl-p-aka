@@ -1,90 +1,143 @@
-import requests
-import json
+import functools
 import time
+import os
+from datetime import date
+from typing import List
 
-starttime = time.time()
-lasttime = starttime
+import requests
+
+from wahl_p_aka import database as db
+
+start_time = time.time()
+last_time = start_time
 
 period = 111  # Bundestag 2017 -- 2021
 
 aw_domain = 'a-watch.dont-break.it'
 
-api_base_url = 'https://www.abgeordnetenwatch.de/api/v2'
+# api_base_url = 'https://www.abgeordnetenwatch.de/api/v2'
 api_base_url = 'https://a-watch.dont-break.it/api/v2'
 
-r = requests.get(
-    api_base_url +
-    f'/polls?field_legislature[entity.id]={period}&pager_limit=100&page=0'
-)
-
-response = r.json()
-data = response['data']
-
 polls = {}
-politicians = {}
-partys = {}
 
-known_mandates = {}
 
-for p in data:
-    poll_id = p['id']
+def fix_api_url(url: str, target: str = None,
+                source: str = 'www.abgeordnetenwatch.de') -> str:
+    """
+    Ensure the urls from the API use our cache
 
-    poll = {
-        'aw_id': poll_id,
-        'poll': p['label'],
-        'abstract': p['field_intro'],
-        'date': p['field_poll_date'],
-        'votes': {}
-    }
+    :param url: The original api
+    :param target: Where the requests should be going
+    :param source: What should be replaced
+    :return: The fixed url
+    """
+    if target is None and aw_domain:
+        target = aw_domain
+    return url.replace(source, target)
 
-    rv = requests.get(
-        f'{api_base_url}/polls/{p["id"]}',
-        {'related_data': 'votes'}
+
+def get_api_url(endpoint) -> str:
+    return f'{api_base_url}/{endpoint}'
+
+
+def get_poll(poll) -> db.Poll:
+    poll_id = poll['id']
+    _poll = db.Poll()
+    _poll.aw_id = poll_id
+    _poll.title = poll['label']
+    _poll.abstract = poll['field_intro']
+    _poll.date = date.fromisoformat(poll['field_poll_date'])
+
+    for v in get_votes(_poll):
+        _poll.politician_votes.append(v)
+
+    db.db.session.add(_poll)
+
+    return _poll
+
+
+def get_votes(poll: db.Poll) -> List[db.PartyVote]:
+    scrape_limit = int(os.getenv('SCRAPE_SHORT', False))
+    api_votes = requests.get(
+        get_api_url(f'polls/{poll.aw_id}'),
+        {
+            'related_data': 'votes',
+        }
     )
 
+    votes = []
+    _api_votes = api_votes.json()
+    for _v in api_votes.json()['data']['related_data']['votes']:
+        vote = db.PoliticianVote()
+        vote.vote = _v['vote']
+        mandate_id = int(_v['mandate']['id'])
+        politician, party = get_politician_by_mandate_id(mandate_id)
+        vote.party = party
+        vote.politician = politician
+        vote.poll = poll
+        db.db.session.add(vote)
+        votes.append(vote)
 
-    data = rv.json()['data']
+        if scrape_limit and len(votes) > scrape_limit:
+            break
+
+    return votes
 
 
-    for vote in data['related_data']['votes']:
-        mandate_id = int(vote['mandate']['id'])
+@functools.cache
+def get_politician_by_mandate_id(mandate_id) -> tuple[db.Politician, db.Party]:
+    api_mandate = requests.get(
+        get_api_url(f'candidacies-mandates/{mandate_id}'),
+        {
+            'related_data': 'politician',
+        }
+    )
 
-        if mandate_id in known_mandates:
-            pid = known_mandates[mandate_id]
-        else:
-            api_url = vote['mandate']['api_url'].replace('www.abgeordnetenwatch.de', aw_domain)
-            pr  = requests.get(
-                api_url,
-                'related_data=politician'
-            )
-            pdata = pr.json()['data']
-            predata = pdata['related_data']['politician']
-            pid = int(pdata['id'])
-            known_mandates[mandate_id] = pid
-            party_id = int(predata['party']['id'])
+    mandate = api_mandate.json()['data']
+    _politician_data = mandate['related_data']['politician']
+    _party_data = _politician_data['party']
 
-            politician = {
-                'first_name': predata['first_name'],
-                'last_name': predata['last_name'],
-                'display_name': predata['label'],
-                'party_id': int(predata['party']['id']),
-            }
+    party = create_party(int(_party_data['id']))
 
-            politicians[pid] = politician
+    politician = db.Politician()
+    politician.aw_id = _politician_data['id']
+    politician.first_name = _politician_data['first_name']
+    politician.last_name = _politician_data['last_name']
+    politician.party = party
 
-            party = {
-                'name': predata['party']['label'],
-            }
+    db.db.session.add(politician)
 
-            partys[party_id] = party
+    return politician, party
 
-        poll['votes'][pid] = vote['vote']
-    
-    polls[poll_id] = poll
-    total_time = time.time() - starttime
-    exec_time = time.time() - lasttime
-    lasttime = time.time()
-    print(round(exec_time, 4), round(total_time, 4), len(polls))
 
-with open('polls.json', 'w') as f:
-    json.dump(polls, f)
+@functools.cache
+def create_party(party_id: int) -> db.Party:
+    api_party = requests.get(
+        get_api_url(f'parties/{party_id}')
+    )
+    party_data = api_party.json()['data']
+    party = db.Party()
+    party.short_name = party_data['label']
+    party.full_name = party_data['full_name']
+    party.aw_id = party_data['id']
+    db.db.session.add(party)
+    return party
+
+
+if __name__ == '__main__':
+    r = requests.get(
+        get_api_url('polls'),
+        {
+            'field_legislature[entity.id]': period,
+            'pager_limit': 10,
+            'page': 0,
+        }
+    )
+
+    data = r.json()['data']
+
+    polls = []
+    for poll in data:
+        polls.append(get_poll(poll))
+
+    db.db.session.commit()

@@ -12,7 +12,7 @@ class Party(db.Model):
     id = Column(Integer, primary_key=True)
     full_name = Column(String(255))
     short_name = Column(String(255))
-    aw_id = Column(Integer)
+    aw_id = Column(Integer, unique=True)
     politicians = relationship("Politician", back_populates="party")
     votes = relationship("PartyVote", back_populates="party")
 
@@ -45,8 +45,8 @@ poll_poll_topic_association_table = Table(
 
 class PollTopic(db.Model):
     id = Column(Integer, primary_key=True)
-    aw_id = Column(String(255))
     name = Column(String(255))
+    aw_id = Column(Integer)
     parent_id = Column(Integer, ForeignKey('poll_topic.id'))
     parent = relationship("PollTopic", back_populates="children", remote_side=[id])
     children = relationship("PollTopic", back_populates="parent")
@@ -55,6 +55,7 @@ class PollTopic(db.Model):
 class Poll(db.Model):
     id = Column(Integer, primary_key=True)
     topics = relationship("PollTopic", secondary=poll_poll_topic_association_table)
+    aw_id = Column(Integer)
     date = Column(DateTime)
     title = Column(String(255))
     abstract = Column(Text)
