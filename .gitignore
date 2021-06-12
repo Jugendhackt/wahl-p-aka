@@ -86,7 +86,7 @@ __pypackages__/
 
 # Environments
 # .env
-.env/
+.env
 .venv/
 env/
 venv/
@@ -124,3 +124,6 @@ Thumbs.db
 
 # profiling data
 .prof
+
+*.cfg
+*.db
