@@ -8,6 +8,7 @@ from typing import List
 import requests
 
 from wahl_p_aka import database as db
+from sqlalchemy import func
 
 start_time = time.time()
 last_time = start_time
@@ -160,10 +161,10 @@ def get_or_create_topic_from_api(topic_id: int) -> db.PollTopic():
 
     topic = db.PollTopic()
     topic.aw_id = topic_id
-    topic.topic = topic_data['label']
+    topic.name = topic_data['label']
 
     if topic_data['parent'] is not None:
-        topic.parent.append(
+        topic.parents.append(
             get_or_create_topic_from_api(
                 int(topic_data['parent'][0]['id'])
             )
@@ -207,3 +208,15 @@ if __name__ == '__main__':
         polls.append(get_or_create_poll(_p))
 
     db.db.session.commit()
+
+    for poll in db.Poll.query.all():
+        parties = {}
+        for vote in poll.politician_votes:
+            party = vote.politician.party
+            if party.id not in parties:
+                parties[party.id] = {}
+            if vote.vote not in parties[party.id]:
+                parties[party.id][vote.vote] = 0
+            parties[party.id][vote.vote] += 1
+
+        print(parties)
