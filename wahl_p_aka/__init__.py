@@ -82,5 +82,4 @@ def result_site():
             "full_name": party[1]['full_name'],
             "percent": party[1]['percent'] / number_polls
         })
-    print(result)
     return flask.render_template("result.html", result=result)
