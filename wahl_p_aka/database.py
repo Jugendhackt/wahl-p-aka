@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Integer, String, Column, DateTime, Text, ForeignKey, Table
+from sqlalchemy import Integer, String, Column, DateTime, Text, ForeignKey, Table, Float
 from sqlalchemy.orm import relationship
 
 from wahl_p_aka import app
@@ -78,10 +78,10 @@ class PartyVote(db.Model):
     party = relationship('Party', back_populates="votes")
     poll_id = Column(Integer, ForeignKey('poll.id'))
     poll = relationship('Poll', back_populates="party_votes")
-    percent_yes = Column(Integer)
-    percent_no = Column(Integer)
-    percent_abstain = Column(Integer)
-    percent_absent = Column(Integer)
+    percent_yes = Column(Float)
+    percent_no = Column(Float)
+    percent_abstain = Column(Float)
+    percent_absent = Column(Float)
 
 
 db.create_all()

@@ -199,9 +199,9 @@ if __name__ == '__main__':
         api_polls = r.json()['data']
         _polls += api_polls
         next_page = (
-            (len(api_polls) >= scraper_polls_count) and
-            scraper_paginate
-         )
+                (len(api_polls) >= scraper_polls_count) and
+                scraper_paginate
+        )
         page += 1
 
     for _p in _polls:
@@ -214,9 +214,24 @@ if __name__ == '__main__':
         for vote in poll.politician_votes:
             party = vote.politician.party
             if party.id not in parties:
-                parties[party.id] = {}
-            if vote.vote not in parties[party.id]:
-                parties[party.id][vote.vote] = 0
+                parties[party.id] = {
+                    'yes': 0,
+                    'no': 0,
+                    'abstain': 0,
+                    'no_show': 0
+                }
             parties[party.id][vote.vote] += 1
 
-        print(parties)
+        for party in parties:
+            votes = parties[party]
+            total = sum(votes.values())
+            pv = db.PartyVote()
+            pv.poll = poll
+            pv.party_id = int(party)
+            pv.percent_yes = parties[party]['yes'] / total
+            pv.percent_no = parties[party]['no'] / total
+            pv.percent_absent = parties[party]['abstain'] / total
+            pv.percent_abstain = parties[party]['no_show'] / total
+            db.db.session.add(pv)
+
+    db.db.session.commit()
