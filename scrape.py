@@ -58,7 +58,7 @@ def get_or_create_poll(poll) -> db.Poll:
 
     if poll['field_topics'] is not None:
         for topic in poll['field_topics']:
-            _poll.topic = get_or_create_topic_from_api(topic['id'])
+            _poll.topics.append(get_or_create_topic_from_api(topic['id']))
 
     for v in get_votes(_poll):
         _poll.politician_votes.append(v)
@@ -164,7 +164,7 @@ def get_or_create_topic_from_api(topic_id: int) -> db.PollTopic():
     topic.name = topic_data['label']
 
     if topic_data['parent'] is not None:
-        topic.parents.append(
+        topic.parent = (
             get_or_create_topic_from_api(
                 int(topic_data['parent'][0]['id'])
             )
