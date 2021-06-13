@@ -77,7 +77,10 @@ class PartyVote(db.Model):
     party = relationship('Party', back_populates="votes")
     poll_id = Column(Integer, ForeignKey('poll.id'))
     poll = relationship('Poll', back_populates="party_votes")
-    vote = Column(String(255))
+    percent_yes = Column(Integer)
+    percent_no = Column(Integer)
+    percent_abstain = Column(Integer)
+    percent_absent = Column(Integer)
 
 
 db.create_all()

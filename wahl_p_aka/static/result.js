@@ -7,8 +7,6 @@ results.forEach((party) => {
     labels.push(party['short_name'])
     data.push(party['percent'])
 })
-console.log(data)
-console.log(labels)
 
 var myChart = new Chart(ctx, {
     type: 'bar',

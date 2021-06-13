@@ -1,5 +1,5 @@
-from flask import Flask
 import flask
+from flask import Flask
 
 app = Flask(__name__)
 
@@ -27,7 +27,7 @@ def question_site():
             topic_ids.append(item[0].split("_")[1])
 
     polltopics = []
-    db_polltopics = db.session.query(PollTopic).filter(PollTopic.aw_id.in_(topic_ids))
+    db_polltopics = db.session.query(PollTopic).filter(PollTopic.id.in_(topic_ids))
     for row in db_polltopics:
         if len(row.children) != 0:
             for child in row.children:
@@ -50,8 +50,13 @@ def question_site():
 
 @app.route("/result", methods=['post'])
 def result_site():
-    polltopics = PollTopic.query.all()
-    result=[
+    formdata = flask.request.form
+    polls = {}
+    for item in formdata.items():
+        if item[1] in ("yes", "no", "abstain") and "radio" in item[0]:
+            polls[item[0].split("_")[1]] = item[1]
+
+    result = [
         {
             "short_name": "SPD",
             "long_name": "Spaßpartei Deutschlands",
