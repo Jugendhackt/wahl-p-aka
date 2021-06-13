@@ -70,10 +70,11 @@ def result_site():
         if poll[1] != "abstain":
             number_polls += 1
             for party_vote in db_poll.party_votes:
+                total_party_people = party_vote.yes + party_vote.no + party_vote.absent + party_vote.abstain
                 if poll[1] == "yes":
-                    party_acceptence[party_vote.party_id]['percent'] += party_vote.percent_yes
-                if poll[1] == "no":
-                    party_acceptence[party_vote.party_id]['percent'] += party_vote.percent_no
+                    party_acceptence[party_vote.party_id]['percent'] += ((party_vote.yes / total_party_people) * 100)
+                elif poll[1] == "no":
+                    party_acceptence[party_vote.party_id]['percent'] += ((party_vote.no / total_party_people) * 100)
 
     result = []
     for party in party_acceptence.items():
