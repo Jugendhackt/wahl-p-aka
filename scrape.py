@@ -224,14 +224,13 @@ if __name__ == '__main__':
 
         for party in parties:
             votes = parties[party]
-            total = sum(votes.values())
             pv = db.PartyVote()
             pv.poll = poll
             pv.party_id = int(party)
-            pv.percent_yes = parties[party]['yes'] / total
-            pv.percent_no = parties[party]['no'] / total
-            pv.percent_absent = parties[party]['abstain'] / total
-            pv.percent_abstain = parties[party]['no_show'] / total
+            pv.yes = parties[party]['yes']
+            pv.no = parties[party]['no']
+            pv.absent = parties[party]['abstain']
+            pv.abstain = parties[party]['no_show']
             db.db.session.add(pv)
 
     db.db.session.commit()
