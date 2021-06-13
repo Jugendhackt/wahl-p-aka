@@ -82,7 +82,7 @@ def result_site():
         result.append({
             "short_name": party[1]['short_name'],
             "full_name": party[1]['full_name'],
-            "percent": party[1]['percent'] / number_polls,
+            "percent": party[1]['percent'] / number_polls if number_polls > 0 else 0,
             "color": party[1]['color'],
         })
     result = sorted(result, key=lambda k: k['percent'], reverse=True)
