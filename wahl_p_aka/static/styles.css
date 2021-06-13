@@ -25,9 +25,9 @@ body {
 .row {
     padding:10px;
 }
-.row.child {
+/*.row.child {
     padding-left: 35px;
-}
+}*/
 
 #submit-button {
     padding: 10px;
