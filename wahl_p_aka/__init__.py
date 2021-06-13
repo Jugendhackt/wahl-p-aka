@@ -9,7 +9,7 @@ except FileNotFoundError:
     print("WARNING: No configuration file found.")
     app.config.from_pyfile('application.cfg.example')
 
-from .database import db, PollTopic, Poll
+from .database import db, PollTopic, Poll, Party
 
 
 @app.route("/")
@@ -56,19 +56,31 @@ def result_site():
         if item[1] in ("yes", "no", "abstain") and "radio" in item[0]:
             polls[int(item[0].split("_")[1])] = item[1]
 
-    for poll in polls.items():
-        db_poll = db.session.query(Poll).filter(Poll.id == poll[0])
-
-    result = [
-        {
-            "short_name": "SPD",
-            "long_name": "Spaßpartei Deutschlands",
-            "percent": 20
-        },
-        {
-            "short_name": "CDU",
-            "long_name": "Christliche Deutsche Unpartei",
-            "percent": 10
+    party_acceptence = {}
+    parties = Party.query.all()
+    for party in parties:
+        party_acceptence[party.id] = {
+            "short_name": party.short_name,
+            "full_name": party.full_name,
+            "percent": 0
         }
-    ]
+    number_polls = 0
+    for poll in polls.items():
+        db_poll = db.session.query(Poll).filter(Poll.id == poll[0]).first()
+        if poll[1] != "abstain":
+            number_polls += 1
+            for party_vote in db_poll.party_votes:
+                if poll[1] == "yes":
+                    party_acceptence[party_vote.party_id]['percent'] += party_vote.percent_yes
+                if poll[1] == "no":
+                    party_acceptence[party_vote.party_id]['percent'] += party_vote.percent_no
+
+    result = []
+    for party in party_acceptence.items():
+        result.append({
+            "short_name": party[1]['short_name'],
+            "full_name": party[1]['full_name'],
+            "percent": party[1]['percent'] / number_polls
+        })
+    print(result)
     return flask.render_template("result.html", result=result)

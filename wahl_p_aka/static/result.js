@@ -15,6 +15,9 @@ var myChart = new Chart(ctx, {
         datasets: [{
             label: 'Prozent Übereinstimmung',
             data: data,
+            backgroundColor: [
+                '#219fd1',
+            ],
             borderWidth: 1
         }]
     },
