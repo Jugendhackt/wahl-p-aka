@@ -15,22 +15,28 @@
 		<form action="{{ url_for('result_site') }}" method="post">
 			{% for question in questions %}
 			<div class="question">
-				<h2 align="center">{{ question.title }}</h2>
-				<br/>
-				<div id="options-group" data-toggle="buttons" align="center">
-					<label class="btn btn-primary active">
-						<input type="radio" name="radio_{{ question.id }}" value="yes"> Dem stimme ich zu.
-					</label>
-					<label class="btn btn-primary">
-						<input type="radio" name="radio_{{ question.id }}" value="no"> Dem stimme ich nicht zu.
-					</label>
-					<label class="btn btn-primary">
-						<input type="radio" name="radio_{{ question.id }}" value="abstain"> Ich weiß nicht.
-					</label>
-					<br>
+				<div style="max-width: 50%; margin: auto;">
+					<h2 align="center">{{ question.title }}</h2>
+					<details align="center">
+						<summary>Details</summary>
+						{{ question.abstract|safe }}
+					</details>
+					<br/>
+					<div id="options-group" data-toggle="buttons" align="center">
+						<label class="btn btn-primary active">
+							<input type="radio" name="radio_{{ question.id }}" value="yes"> Dem stimme ich zu.
+						</label>
+						<label class="btn btn-primary">
+							<input type="radio" name="radio_{{ question.id }}" value="no"> Dem stimme ich nicht zu.
+						</label>
+						<label class="btn btn-primary">
+							<input type="radio" name="radio_{{ question.id }}" value="abstain"> Ich weiß nicht.
+						</label>
+						<br>
+					</div>
+					<br/>
+					<br/>
 				</div>
-				<br/>
-				<br/>
 			</div>
 			{% endfor %}
 			<div style="text-align: center; margin-top: 15px;">

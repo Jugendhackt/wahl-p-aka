@@ -54,7 +54,10 @@ def result_site():
     polls = {}
     for item in formdata.items():
         if item[1] in ("yes", "no", "abstain") and "radio" in item[0]:
-            polls[item[0].split("_")[1]] = item[1]
+            polls[int(item[0].split("_")[1])] = item[1]
+
+    for poll in polls.items():
+        db_poll = db.session.query(Poll).filter(Poll.id == poll[0])
 
     result = [
         {
