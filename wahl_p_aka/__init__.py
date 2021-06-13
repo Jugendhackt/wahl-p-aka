@@ -62,6 +62,7 @@ def result_site():
         party_acceptence[party.id] = {
             "short_name": party.short_name,
             "full_name": party.full_name,
+            "color": party.color,
             "percent": 0
         }
     number_polls = 0
@@ -81,6 +82,7 @@ def result_site():
         result.append({
             "short_name": party[1]['short_name'],
             "full_name": party[1]['full_name'],
-            "percent": party[1]['percent'] / number_polls
+            "percent": party[1]['percent'] / number_polls,
+            "color": party[1]['color'],
         })
     return flask.render_template("result.html", result=result)

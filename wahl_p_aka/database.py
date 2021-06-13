@@ -9,12 +9,31 @@ db = SQLAlchemy(app)
 
 
 class Party(db.Model):
+    COLOR_MAP = {
+        'afd': '#b86b2c',
+        'cdu': '#000000',
+        'spd': '#e3000f',
+        'die linke': '#df0303',
+        'bündnis 90/die grünen': '#3c8025',
+        'fdp': '#ffed00',
+        'csu': '#0080c8',
+        'die partei': '#b92837',
+        'parteilos': 'lightgray'
+    }
+
     id = Column(Integer, primary_key=True)
     full_name = Column(String(255))
     short_name = Column(String(255))
     aw_id = Column(Integer, unique=True)
     politicians = relationship("Politician", back_populates="party")
     votes = relationship("PartyVote", back_populates="party")
+
+    @property
+    def color(self):
+        if self.short_name.lower() not in self.COLOR_MAP:
+            return '#219fd1'
+
+        return self.COLOR_MAP[self.short_name.lower()]
 
 
 class Politician(db.Model):

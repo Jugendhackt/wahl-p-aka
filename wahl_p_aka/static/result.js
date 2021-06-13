@@ -1,10 +1,12 @@
 var ctx = document.getElementById('result-chart').getContext('2d');
 
 labels = []
+colors = []
 data = []
 
 results.forEach((party) => {
     labels.push(party['short_name'])
+    colors.push(party['color'])
     data.push(party['percent'])
 })
 
@@ -15,9 +17,7 @@ var myChart = new Chart(ctx, {
         datasets: [{
             label: 'Prozent Übereinstimmung',
             data: data,
-            backgroundColor: [
-                '#219fd1',
-            ],
+            backgroundColor: colors,
             borderWidth: 1
         }]
     },
