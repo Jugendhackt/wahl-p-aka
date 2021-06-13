@@ -178,7 +178,7 @@ if __name__ == '__main__':
     scraper_polls_count = int(os.getenv('SCRAPE_POLLS_COUNT', 100))
     if scraper_polls_count > 100:
         scraper_polls_count = 100  # 100 is the limit of the aw api
-    scraper_paginate = os.getenv('SCRAPE_PAGINATE', scraper_polls_count >= 100)
+    scraper_paginate = os.getenv('SCRAPE_PAGINATE', str(scraper_polls_count >= 100))
     scraper_paginate = scraper_paginate.lower() in ('true', '1', 't')
     next_page = True
     page = 0
@@ -196,7 +196,7 @@ if __name__ == '__main__':
         )
 
         api_polls = r.json()['data']
-        polls += api_polls
+        _polls += api_polls
         next_page = (
             (len(api_polls) >= scraper_polls_count) and
             scraper_paginate
