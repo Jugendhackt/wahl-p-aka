@@ -85,4 +85,5 @@ def result_site():
             "percent": party[1]['percent'] / number_polls,
             "color": party[1]['color'],
         })
+    result = sorted(result, key=lambda k: k['percent'], reverse=True)
     return flask.render_template("result.html", result=result)
