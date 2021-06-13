@@ -14,6 +14,9 @@
         </div>
         <h2 align="center">Dein Ergebnis: </h2>
         <canvas id="result-chart" style="width: 40vw; height: 60vh; margin: auto"></canvas>
+        <div align="center" style="margin: 1em">
+            Datenquelle: <a href="https://abgeordnetenwatch.de">abgeordnetenwatch.de</a>
+        </div>
         <script>
             const results = {{ result | tojson }}
         </script>
