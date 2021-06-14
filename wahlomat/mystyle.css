@@ -1,0 +1,37 @@
+h1 {
+	font-family: Calibri;
+}
+
+h2 {
+	font-family: Calibri;
+}
+
+#title-frame {
+	background-color: #219fd1;
+	padding:6px;
+	border: 3px solid black;
+}
+
+#question-start {
+	margin: auto;
+	width:25%;
+	background-color: #219fd1;
+	border: 3px solid black;
+}
+
+#q-text {
+	color: #219fd1;
+}
+
+#cool-label {
+	color: #e1f2f5;
+}
+
+#rows {
+	padding:10px;
+	
+}
+
+#submit-button {
+	padding: 5px;
+}
